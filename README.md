@@ -1,70 +1,71 @@
-# Getting Started with Create React App
+# Recipe Selector
+This app provides a dropdown menu that fetches and displays a list of recipes, along with their details, using a service worker for caching and offline support.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Features:
+- Fetches recipe names and displays them in a dropdown menu.
+- Fetches detailed information about a selected recipe (ingredients, instructions, difficulty).
+- Uses a service worker to cache API responses.
+- Implements proper caching mechanisms with cache control.
+- Includes error handling for edge cases like service worker not being available.
 
-## Available Scripts
+## How It Works
+### Recipe Dropdown Component (src/components/RecipeDropdown.js):
+1. Fetching Recipe List:
+- When the component mounts, it checks if a service worker is registered and available. Once the service worker is ready (i.e., it is activated and controls the page), a message is sent to the service worker to fetch the list of recipes.
+- The service worker intercepts this request, checks the cache first, and if data is not available in the cache, it fetches the recipe list from the network and caches it for future requests.
+2. Selecting a Recipe:
+- When the user selects a recipe from the dropdown menu, the component sends another message to the service worker, requesting the detailed information for the selected recipe.
+- The service worker responds with cached recipe details if available, or fetches it from the network, caches the result, and sends the data back to the component for display.
+3. Error Handling:
+- If there is any issue with fetching recipes (e.g., no service worker, failed network requests), appropriate error messages are displayed.
 
-In the project directory, you can run:
+### Service Worker (public/service-worker.js):
+- The service worker listens for fetch events, intercepts API requests to the recipes API, and checks the cache first. If the requested data is cached, it serves the cached response. If not, it fetches the data from the network, caches it, and then serves the response.
+- The service worker also listens for messages from the RecipeDropdown component, such as when requesting the recipe list or specific recipe details.
 
-### `npm start`
+## Installation and Setup Instructions
+1. Install Node.js
+Ensure that you have Node.js and npm installed on your machine. You can verify by running:
+```
+node -v
+npm -v
+```
+If you don't have Node.js installed, download and install it from the official site: https://nodejs.org.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+2. Clone the Repository
+Once you have Node.js installed, follow these steps to set up the project:
+```
+git clone https://github.com/kanwalgs/recipe-selector-task.git
+cd your-project-directory
+```
+3. Install Dependencies
+Run the following command to install the required dependencies:
+```
+npm install
+```
+4. Run the Application
+To run the app in development mode:
+```
+npm start
+```
+This command will start the app, and it will be available at http://localhost:3000. Open this URL in your browser to view the app.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+5. Build the Application (Optional)
+To build the app for production:
+```
+npm run build
+```
+This will create a build folder containing the optimized production-ready files.
 
-### `npm test`
+## Service Worker Registration
+The service worker is automatically registered in the React app when the app is built for production. It caches responses using the Cache API and serves cached responses for future requests or when the network is unavailable.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Common Issues and Debugging
+1. Service Worker Not Registering:
+- Make sure you're running the project on localhost or via HTTPS (in production).
+- Check the browser's DevTools > Console for any errors.
+2. Cache Issues:
+- Clear the browser cache manually if stale data is being served. Go to DevTools > Application > Clear site data.
+3. Recipes Not Displaying in Incognito Mode:
+- Ensure the service worker is fully activated before trying to fetch the recipes. The navigator.serviceWorker.ready promise ensures the service worker is active. 
+- A quick reload should fix the issue.
